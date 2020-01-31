@@ -45,13 +45,13 @@ class _MyHomePageState extends State<MyHomePage> {
   //final List<int> _positions = <int>[];
   final TextStyle _biggerFont = const TextStyle(fontSize: 24);
   final TextStyle _bigFont = const TextStyle(fontSize: 18);
-  
+
   int _wordcount = 0;
   String checker;
   //int _startin = 0;
   //int _endin = 0;
 
-  void _initialize(){
+  void _initialize(List<DocumentSnapshot> dbwords) {
     //_wordcount = 0;
     _words.add("SWIFT");
     _words.add("KOTLIN");
@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _words.add("VARIABLE");
     _words.add("JAVA");
     _words.add("MOBILE");
-    for(var i = 0; i < GRID_COUNT * GRID_COUNT; i++){
+    for (var i = 0; i < GRID_COUNT * GRID_COUNT; i++) {
       _letters.add("Z");
       _userletters.add(false);
     }
@@ -123,18 +123,19 @@ class _MyHomePageState extends State<MyHomePage> {
     _letters[53] = "I";
     _letters[54] = "L";
     _letters[55] = "E";
-    for(var i = 0; i < GRID_COUNT * GRID_COUNT; i++){
-      if(_letters[i] == "Z"){
+    for (var i = 0; i < GRID_COUNT * GRID_COUNT; i++) {
+      if (_letters[i] == "Z") {
         _letters[i] = randomAlpha(1);
       }
     }
   }
+
   void _incrementCounter() {
     checker = "";
     bool found = false;
     bool done = false;
     bool repeat = false;
-    for(var i = 0; i < _saved.length; i++){
+    for (var i = 0; i < _saved.length; i++) {
       checker = checker + _saved[i];
     }
     /*for(var i = 0; i < _words.length; i++){
@@ -142,24 +143,24 @@ class _MyHomePageState extends State<MyHomePage> {
         found = true;
       }
     }*/
-    if(_words.contains(checker)){
+    if (_words.contains(checker)) {
       found = true;
     }
-    if (found){
-      if (_savedwords.contains(checker)){
+    if (found) {
+      if (_savedwords.contains(checker)) {
         repeat = true;
-      }
-      else{
+      } else {
         _savedwords.add(checker);
         _wordcount++;
       }
     }
-    if (_wordcount == 6){
+    if (_wordcount == 6) {
       done = true;
     }
     _showDialog(checker, found, done, repeat);
     _saved.clear();
   }
+
   void _showDialog(String l, bool n, bool m, bool o) {
     showDialog(
       context: context,
@@ -168,12 +169,14 @@ class _MyHomePageState extends State<MyHomePage> {
           title: new Text("You submitted $checker!"),
           //insetAnimationCurve: null,
           //insetAnimationDuration: null,
-          content: n ? o ?
-            new Text("You already found that word! Click the upper right arrow to see your words.") :
-            m ?
-            new Text("You found all the words. Hooray!!") :
-            new Text("Good job! You've found $_wordcount words") :
-            new Text("That wasn't a word we're looking for!"),
+          content: n
+              ? o
+                  ? new Text(
+                      "You already found that word! Click the upper right arrow to see your words.")
+                  : m
+                      ? new Text("You found all the words. Hooray!!")
+                      : new Text("Good job! You've found $_wordcount words")
+              : new Text("That wasn't a word we're looking for!"),
           actions: <Widget>[
             new FlatButton(
               child: new Text("Close"),
@@ -186,15 +189,18 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
   }
-  void _clearSaved(){
-    setState(() { 
+
+  void _clearSaved() {
+    setState(() {
       _savedwords.clear();
       _wordcount = 0;
     });
     Navigator.of(context).pop();
   }
-  Widget _letterGrid(var ui){
-    //_initialize();
+
+  Widget _letterGrid(var ui, List<DocumentSnapshot> documents) {
+    _initialize(documents);
+    print(documents[0]['word']); //when I drag to search a word, this prints continuously
     //print(s.width);
     //print(s.height);
     return Container(
@@ -221,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
           primary: false,
           shrinkWrap: true,
           crossAxisCount: GRID_COUNT,
-          children: List.generate(GRID_COUNT*GRID_COUNT, (index) {
+          children: List.generate(GRID_COUNT * GRID_COUNT, (index) {
             return Container(
               decoration: new BoxDecoration(
                 //borderRadius: BorderRadius.circular(20.0),
@@ -238,7 +244,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-  void _findWord(var t){
+
+  void _findWord(var t) {
     double startx = _dragX.first;
     double endx = _dragX.last;
     double starty = _dragY.first;
@@ -251,18 +258,18 @@ class _MyHomePageState extends State<MyHomePage> {
     finx = endx ~/ (t.size.width / GRID_COUNT);
     begy = starty ~/ (t.size.width / GRID_COUNT);
     finy = endy ~/ (t.size.width / GRID_COUNT);
-    if(begy == finy){
-      for(var i = begx; i <= finx; i++){
-        int a = i+(10*begy);
-        if(_userletters[a]){
+    if (begy == finy) {
+      for (var i = begx; i <= finx; i++) {
+        int a = i + (10 * begy);
+        if (_userletters[a]) {
           _saved.add(_letters[a]);
         }
       }
     }
-    if(begx == finx){
-      for(var i = begy; i <= finy; i++){
-        int b = begx+(10*i);
-        if(_userletters[b]){
+    if (begx == finx) {
+      for (var i = begy; i <= finy; i++) {
+        int b = begx + (10 * i);
+        if (_userletters[b]) {
           _saved.add(_letters[b]);
         }
       }
@@ -270,55 +277,55 @@ class _MyHomePageState extends State<MyHomePage> {
     _dragX.clear();
     _dragY.clear();
   }
-  void _clearDrag(){
-    for(var i = 0; i < _userletters.length; i++){
-      if (_userletters[i]){
-        setState((){
+
+  void _clearDrag() {
+    for (var i = 0; i < _userletters.length; i++) {
+      if (_userletters[i]) {
+        setState(() {
           _userletters[i] = false;
         });
       }
     }
   }
-  void _colorLetter(double x, double y, var t){
+
+  void _colorLetter(double x, double y, var t) {
     int myx = x ~/ (t.size.width / GRID_COUNT);
     int myy = y ~/ (t.size.width / GRID_COUNT);
-    int pos = myx + (10*myy);
-    setState((){
+    int pos = myx + (10 * myy);
+    setState(() {
       _userletters[pos] = true;
     });
   }
-  Widget _wordBox(){
-    return Column(
-      children: <Widget>[
-        Center(
-          child: Text("Word Box", style: _biggerFont),
-        ),
-        Text("1. SWIFT", style: _bigFont),
-        Text("2. KOTLIN", style: _bigFont),
-        Text("3. OBJECTIVEC", style: _bigFont),
-        Text("4. VARIABLE", style: _bigFont),
-        Text("5. JAVA", style: _bigFont),
-        Text("6. MOBILE", style: _bigFont)
-      ]
-    );
+
+  Widget _wordBox() {
+    return Column(children: <Widget>[
+      Center(
+        child: Text("Word Box", style: _biggerFont),
+      ),
+      Text("1. SWIFT", style: _bigFont),
+      Text("2. KOTLIN", style: _bigFont),
+      Text("3. OBJECTIVEC", style: _bigFont),
+      Text("4. VARIABLE", style: _bigFont),
+      Text("5. JAVA", style: _bigFont),
+      Text("6. MOBILE", style: _bigFont)
+    ]);
   }
+
   void _pushSaved() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
           final Iterable<ListTile> tiles = _savedwords.map(
-                (String text) {
+            (String text) {
               return ListTile(
                 title: Text(text),
               );
             },
           );
-          final List<Widget> divided = ListTile
-              .divideTiles(
+          final List<Widget> divided = ListTile.divideTiles(
             context: context,
             tiles: tiles,
-          )
-              .toList();
+          ).toList();
           return Scaffold(
             appBar: AppBar(
               title: Text('Found Words: $_wordcount'),
@@ -337,45 +344,51 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
   /*void _chooseTile(String text) {
     _saved.add(text);
   }*/
   @override
   Widget build(BuildContext context) {
     var outputUI = MediaQuery.of(context);
-    _initialize();
+    //_initialize();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.arrow_forward_ios), onPressed: _pushSaved),
+          IconButton(
+              icon: Icon(Icons.arrow_forward_ios), onPressed: _pushSaved),
         ],
       ),
-      body: Container(
-        child: new Column(
-          //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            _letterGrid(outputUI),
-            SizedBox(height: outputUI.size.height / 44),
-            Divider(
-              indent: outputUI.size.width / 12,
-              endIndent: outputUI.size.width / 12,
-              thickness: 3.0,
-              color: Colors.black,
-            ),
-            SizedBox(height: outputUI.size.height / 44),
-            _wordBox(),
-          ],
-        ),
-        /*decoration: new BoxDecoration(
-          color: Colors.grey,
-          //borderRadius: BorderRadius.circular(20.0),
-          gradient: new LinearGradient(
-            colors: [Colors.grey, Colors.white, Colors.grey],
-            tileMode: TileMode.mirror,
-          ),
-        ),*/
-      ),
+      body: StreamBuilder(
+          stream: Firestore.instance.collection('words').snapshots(),
+          builder: (context, snapshot) {
+            return Container(
+              child: new Column(
+                //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  _letterGrid(outputUI, snapshot.data.documents), //flutter warning about getter documents
+                  SizedBox(height: outputUI.size.height / 44),
+                  Divider(
+                    indent: outputUI.size.width / 12,
+                    endIndent: outputUI.size.width / 12,
+                    thickness: 3.0,
+                    color: Colors.black,
+                  ),
+                  SizedBox(height: outputUI.size.height / 44),
+                  _wordBox(),
+                ],
+              ),
+              /*decoration: new BoxDecoration(
+              color: Colors.grey,
+              //borderRadius: BorderRadius.circular(20.0),
+              gradient: new LinearGradient(
+                colors: [Colors.grey, Colors.white, Colors.grey],
+                tileMode: TileMode.mirror,
+              ),
+            ),*/
+            );
+          }),
       /*floatingActionButton: FloatingActionButton.extended(
         onPressed: _incrementCounter,
         tooltip: 'Send',
