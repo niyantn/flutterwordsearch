@@ -53,16 +53,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _initialize(List<DocumentSnapshot> dbwords) {
     //_wordcount = 0;
+    for (var i = 0; i < GRID_COUNT * GRID_COUNT; i++) {
+      _letters.add("1");
+      _userletters.add(false);
+    }
+    int startpos = 0;
+    for (var name in dbwords) {
+      String theword = name['word'];
+      _words.add(theword);
+      for (var l = 0; l < theword.length; l++) {
+        _letters[startpos] = theword[l];
+        startpos++;
+      }
+      while (startpos % GRID_COUNT != 0) {
+        startpos++;
+      }
+    }
+    /*
     _words.add("SWIFT");
     _words.add("KOTLIN");
     _words.add("OBJECTIVEC");
     _words.add("VARIABLE");
     _words.add("JAVA");
-    _words.add("MOBILE");
-    for (var i = 0; i < GRID_COUNT * GRID_COUNT; i++) {
-      _letters.add("Z");
-      _userletters.add(false);
-    }
+    _words.add("MOBILE");*/
     /*
     while(_positions.length < _words.length){
       int p = _words.length - 1;
@@ -83,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
       for(var k = 0; k < _words[j].length; k++){
         _letters[start+k] = _words[j][k];
       }
-    }*/
+    }
     _letters[0] = "S";
     _letters[1] = "W";
     _letters[2] = "I";
@@ -122,9 +135,9 @@ class _MyHomePageState extends State<MyHomePage> {
     _letters[52] = "B";
     _letters[53] = "I";
     _letters[54] = "L";
-    _letters[55] = "E";
+    _letters[55] = "E";*/
     for (var i = 0; i < GRID_COUNT * GRID_COUNT; i++) {
-      if (_letters[i] == "Z") {
+      if (_letters[i] == "1") {
         _letters[i] = randomAlpha(1);
       }
     }
@@ -200,7 +213,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _letterGrid(var ui, List<DocumentSnapshot> documents) {
     _initialize(documents);
-    print(documents[0]['word']); //when I drag to search a word, this prints continuously
     //print(s.width);
     //print(s.height);
     return Container(
@@ -302,13 +314,41 @@ class _MyHomePageState extends State<MyHomePage> {
       Center(
         child: Text("Word Box", style: _biggerFont),
       ),
-      Text("1. SWIFT", style: _bigFont),
-      Text("2. KOTLIN", style: _bigFont),
-      Text("3. OBJECTIVEC", style: _bigFont),
-      Text("4. VARIABLE", style: _bigFont),
-      Text("5. JAVA", style: _bigFont),
-      Text("6. MOBILE", style: _bigFont)
+      Text("1. AARON", style: _bigFont),
+      Text("2. AMIT", style: _bigFont),
+      Text("3. BEN", style: _bigFont),
+      Text("4. KATZ", style: _bigFont),
+      Text("5. LUCAS", style: _bigFont),
+      Text("6. SUMAARG", style: _bigFont)
     ]);
+  }
+
+  Widget _appInterface(var ui, List<DocumentSnapshot> d) {
+    return Container(
+      child: new Column(
+        //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          _letterGrid(ui, d), //flutter warning about getter documents
+          SizedBox(height: ui.size.height / 44),
+          Divider(
+            indent: ui.size.width / 12,
+            endIndent: ui.size.width / 12,
+            thickness: 3.0,
+            color: Colors.black,
+          ),
+          SizedBox(height: ui.size.height / 44),
+          _wordBox(),
+        ],
+      ),
+      /*decoration: new BoxDecoration(
+              color: Colors.grey,
+              //borderRadius: BorderRadius.circular(20.0),
+              gradient: new LinearGradient(
+                colors: [Colors.grey, Colors.white, Colors.grey],
+                tileMode: TileMode.mirror,
+              ),
+            ),*/
+    );
   }
 
   void _pushSaved() {
@@ -360,34 +400,11 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icon(Icons.arrow_forward_ios), onPressed: _pushSaved),
         ],
       ),
-      body: StreamBuilder(
+      body: StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance.collection('words').snapshots(),
           builder: (context, snapshot) {
-            return Container(
-              child: new Column(
-                //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  _letterGrid(outputUI, snapshot.data.documents), //flutter warning about getter documents
-                  SizedBox(height: outputUI.size.height / 44),
-                  Divider(
-                    indent: outputUI.size.width / 12,
-                    endIndent: outputUI.size.width / 12,
-                    thickness: 3.0,
-                    color: Colors.black,
-                  ),
-                  SizedBox(height: outputUI.size.height / 44),
-                  _wordBox(),
-                ],
-              ),
-              /*decoration: new BoxDecoration(
-              color: Colors.grey,
-              //borderRadius: BorderRadius.circular(20.0),
-              gradient: new LinearGradient(
-                colors: [Colors.grey, Colors.white, Colors.grey],
-                tileMode: TileMode.mirror,
-              ),
-            ),*/
-            );
+            if (!snapshot.hasData) return const Text("no data from database");
+            return _appInterface(outputUI, snapshot.data.documents);
           }),
       /*floatingActionButton: FloatingActionButton.extended(
         onPressed: _incrementCounter,
