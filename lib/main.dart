@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         //scaffoldBackgroundColor: Colors.blue,
         accentColor: Colors.amber,
       ),
-      home: MyHomePage(title: 'Shopify Word Search'),
+      home: MyHomePage(title: 'Word Search'),
     );
   }
 }
