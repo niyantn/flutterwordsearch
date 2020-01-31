@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:random_string/random_string.dart';
-import 'dart:math' show Random;
+//import 'dart:math' show Random;
 import 'package:flutter/src/material/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 const int GRID_COUNT = 10;
 
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter',
       theme: ThemeData(
         primaryColor: Colors.green.shade800,
         //scaffoldBackgroundColor: Colors.blue,
@@ -39,16 +40,16 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<String> _letters = <String>[];
   final List<bool> _userletters = <bool>[];
   final List<String> _words = <String>[];
-  final List<double> _drag_x = <double>[];
-  final List<double> _drag_y = <double>[];
+  final List<double> _dragX = <double>[];
+  final List<double> _dragY = <double>[];
   //final List<int> _positions = <int>[];
   final TextStyle _biggerFont = const TextStyle(fontSize: 24);
   final TextStyle _bigFont = const TextStyle(fontSize: 18);
   
   int _wordcount = 0;
   String checker;
-  int _startin = 0;
-  int _endin = 0;
+  //int _startin = 0;
+  //int _endin = 0;
 
   void _initialize(){
     //_wordcount = 0;
@@ -208,8 +209,8 @@ class _MyHomePageState extends State<MyHomePage> {
           //print(details.localPosition.dx);
           //print(details.localPosition.dy);
           _colorLetter(details.localPosition.dx, details.localPosition.dy, ui);
-          _drag_x.add(details.localPosition.dx);
-          _drag_y.add(details.localPosition.dy);
+          _dragX.add(details.localPosition.dx);
+          _dragY.add(details.localPosition.dy);
         },
         onPanEnd: (details) {
           _findWord(ui);
@@ -238,10 +239,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
   void _findWord(var t){
-    double startx = _drag_x.first;
-    double endx = _drag_x.last;
-    double starty = _drag_y.first;
-    double endy = _drag_y.last;
+    double startx = _dragX.first;
+    double endx = _dragX.last;
+    double starty = _dragY.first;
+    double endy = _dragY.last;
     int begx = 0;
     int finx = 0;
     int begy = 0;
@@ -266,8 +267,8 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
     }
-    _drag_x.clear();
-    _drag_y.clear();
+    _dragX.clear();
+    _dragY.clear();
   }
   void _clearDrag(){
     for(var i = 0; i < _userletters.length; i++){
